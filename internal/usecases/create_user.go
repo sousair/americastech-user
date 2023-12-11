@@ -34,10 +34,6 @@ func NewCreateUserUseCase(userRepo repositories.UserRepository) CreateUserUseCas
 func (uc *createUserUseCase) Create(params CreateUserParams) (*entities.User, error) {
 	emailAlreadyExists, err := uc.UserRepository.FindByEmail(params.Email)
 
-	if err != nil {
-		return nil, err
-	}
-
 	if emailAlreadyExists != nil {
 		return nil, &errors.EmailAlreadyExists{
 			Email: params.Email,
