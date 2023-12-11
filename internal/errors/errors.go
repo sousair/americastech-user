@@ -36,3 +36,35 @@ func NewInternalServerError(cause error) *internalServerError {
 func (e internalServerError) Error() string {
 	return "internal server error"
 }
+
+type userNotFoundError struct {
+	cause error
+}
+
+var UserNotFoundError = &userNotFoundError{}
+
+func NewUserNotFoundError(cause error) *userNotFoundError {
+	return &userNotFoundError{
+		cause: cause,
+	}
+}
+
+func (e userNotFoundError) Error() string {
+	return "user not found"
+}
+
+type invalidPasswordError struct {
+	cause error
+}
+
+var InvalidPasswordError = &invalidPasswordError{}
+
+func NewInvalidPasswordError(cause error) *invalidPasswordError {
+	return &invalidPasswordError{
+		cause: cause,
+	}
+}
+
+func (e invalidPasswordError) Error() string {
+	return "invalid password"
+}

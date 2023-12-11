@@ -45,8 +45,8 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 			})
 		}
 
-		cryptoProvider := crypto_provider.NewCryptoProvider()
 		userRepo := gorm_repositories.NewUserRepository(db)
+		cryptoProvider := crypto_provider.NewCryptoProvider()
 
 		createUserUC := usecases.NewCreateUserUseCase(userRepo, cryptoProvider)
 

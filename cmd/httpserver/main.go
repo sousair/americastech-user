@@ -31,6 +31,7 @@ func main() {
 	e := echo.New()
 
 	e.POST("/users", http_handlers.CreateUserHandler(db))
+	e.POST("/users/sign-in", http_handlers.CreateUserSignInHandler(db))
 
 	// TODO: Create a middleware to check if the user is authenticated
 	// ! This should be an admin route in the future

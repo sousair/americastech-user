@@ -27,8 +27,6 @@ type (
 	}
 )
 
-var variableName int
-
 func NewCreateUserUseCase(userRepo repositories.UserRepository, cryptoProvider cryptography.CryptoProvider) CreateUserUseCase {
 	return &createUserUseCase{
 		UserRepository: userRepo,
@@ -36,7 +34,7 @@ func NewCreateUserUseCase(userRepo repositories.UserRepository, cryptoProvider c
 	}
 }
 
-func (uc *createUserUseCase) Create(params CreateUserParams) (*entities.User, error) {
+func (uc createUserUseCase) Create(params CreateUserParams) (*entities.User, error) {
 	emailAlreadyExists, _ := uc.UserRepository.FindByEmail(params.Email)
 
 	if emailAlreadyExists != nil {
