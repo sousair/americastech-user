@@ -4,12 +4,14 @@ WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/http-server ./cmd/...
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin ./cmd/...
 
 #
 
 FROM scratch
 
-COPY --from=compiler /app/bin/http-server /app/bin/http-server
+COPY --from=compiler /app/bin /app/bin
 
-ENTRYPOINT ["/app/bin/http-server"]
+COPY .env .env
+
+ENTRYPOINT ["/app/bin/httpserver"]
