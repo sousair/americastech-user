@@ -5,7 +5,9 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sousair/americastech-user/internal/entities"
 	custom_errors "github.com/sousair/americastech-user/internal/errors"
+	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
 	"github.com/sousair/americastech-user/internal/usecases"
 	"gorm.io/gorm"
@@ -18,6 +20,11 @@ type (
 		Password             string `json:"password"`
 		ConfirmationPassword string `json:"confirmation_password"`
 		PhoneNumber          string `json:"phone_number"`
+	}
+
+	CreateUserResponse struct {
+		// TODO: Make a sanitized user struct
+		User *entities.User `json:"user"`
 	}
 )
 
@@ -38,8 +45,10 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 			})
 		}
 
+		cryptoProvider := crypto_provider.NewCryptoProvider()
 		userRepo := gorm_repositories.NewUserRepository(db)
-		createUserUC := usecases.NewCreateUserUseCase(userRepo)
+
+		createUserUC := usecases.NewCreateUserUseCase(userRepo, cryptoProvider)
 
 		user, err := createUserUC.Create(usecases.CreateUserParams{
 			Name:        createUserRequest.Name,

@@ -5,7 +5,8 @@ import (
 
 	"github.com/sousair/americastech-user/internal/entities"
 	custom_errors "github.com/sousair/americastech-user/internal/errors"
-	"github.com/sousair/americastech-user/internal/repositories"
+	"github.com/sousair/americastech-user/internal/providers/cryptography"
+	"github.com/sousair/americastech-user/internal/providers/repositories"
 )
 
 type (
@@ -22,14 +23,16 @@ type (
 
 	createUserUseCase struct {
 		UserRepository repositories.UserRepository
+		CryptoProvider cryptography.CryptoProvider
 	}
 )
 
 var variableName int
 
-func NewCreateUserUseCase(userRepo repositories.UserRepository) CreateUserUseCase {
+func NewCreateUserUseCase(userRepo repositories.UserRepository, cryptoProvider cryptography.CryptoProvider) CreateUserUseCase {
 	return &createUserUseCase{
 		UserRepository: userRepo,
+		CryptoProvider: cryptoProvider,
 	}
 }
 
@@ -40,10 +43,16 @@ func (uc *createUserUseCase) Create(params CreateUserParams) (*entities.User, er
 		return nil, custom_errors.NewEmailAlreadyExistsError(errors.New(""), params.Email)
 	}
 
+	encryptedPassword, err := uc.CryptoProvider.Hash(params.Password)
+
+	if err != nil {
+		return nil, custom_errors.NewInternalServerError(err)
+	}
+
 	user, err := uc.UserRepository.Create(repositories.CreateUserParams{
 		Name:        params.Name,
 		Email:       params.Email,
-		Password:    params.Password,
+		Password:    encryptedPassword,
 		PhoneNumber: params.PhoneNumber,
 	})
 
