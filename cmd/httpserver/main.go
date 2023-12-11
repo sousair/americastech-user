@@ -32,5 +32,9 @@ func main() {
 
 	e.POST("/users", http_handlers.CreateUserHandler(db))
 
+	// TODO: Create a middleware to check if the user is authenticated
+	// ! This should be an admin route in the future
+	e.GET("/users", http_handlers.CreateGetUsersHandler(db))
+
 	e.Logger.Fatal(e.Start(":8080"))
 }

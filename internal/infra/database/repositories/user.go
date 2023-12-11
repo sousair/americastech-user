@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sousair/americastech-user/internal/entities"
 	gorm_models "github.com/sousair/americastech-user/internal/infra/database/models"
-	"github.com/sousair/americastech-user/internal/repositories"
+	"github.com/sousair/americastech-user/internal/providers/repositories"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +16,7 @@ type (
 	}
 )
 
-func NewUserRepository(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) repositories.UserRepository {
 	return &UserRepository{
 		db: db,
 	}
@@ -48,4 +48,20 @@ func (r *UserRepository) FindByEmail(email string) (*entities.User, error) {
 	}
 
 	return user.ToEntity(), nil
+}
+
+func (r *UserRepository) FindAll() ([]*entities.User, error) {
+	users := make([]*gorm_models.User, 0)
+
+	if err := r.db.Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	var usersEntities []*entities.User
+
+	for _, user := range users {
+		usersEntities = append(usersEntities, user.ToEntity())
+	}
+
+	return usersEntities, nil
 }
