@@ -12,12 +12,11 @@ type (
 		gorm.Model
 		ID          string `gorm:"primaryKey"`
 		Name        string
-		Email       string `gorm:"uniqueIndex" `
+		Email       string `gorm:"uniqueIndex"`
 		Password    string
 		PhoneNumber string
-		CreatedAt   time.Time      `gorm:"autoCreateTime"`
-		UpdatedAt   time.Time      `gorm:"autoUpdateTime"`
-		DeletedAt   gorm.DeletedAt `gorm:"index"`
+		CreatedAt   time.Time `gorm:"autoCreateTime"`
+		UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 	}
 )
 
@@ -30,7 +29,6 @@ func (u User) ToEntity() *entities.User {
 		PhoneNumber: u.PhoneNumber,
 		CreatedAt:   u.CreatedAt,
 		UpdatedAt:   u.UpdatedAt,
-		DeletedAt:   u.DeletedAt.Time,
 	}
 
 	return &user
