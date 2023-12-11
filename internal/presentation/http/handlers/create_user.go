@@ -24,7 +24,7 @@ type (
 
 	CreateUserResponse struct {
 		// TODO: Make a sanitized user struct
-		User *entities.User `json:"user"`
+		User *entities.SanitizedUser `json:"user"`
 	}
 )
 
@@ -72,7 +72,7 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 		}
 
 		return c.JSON(http.StatusCreated, map[string]interface{}{
-			"user": user,
+			"user": user.Sanitize(),
 		})
 	}
 }

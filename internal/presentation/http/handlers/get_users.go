@@ -11,7 +11,7 @@ import (
 
 type (
 	GetUsersResponse struct {
-		Users []*entities.User `json:"users"`
+		Users []*entities.SanitizedUser `json:"users"`
 	}
 )
 
@@ -27,8 +27,14 @@ func CreateGetUsersHandler(db *gorm.DB) func(c echo.Context) error {
 			})
 		}
 
+		var sanitizedUsers []*entities.SanitizedUser
+
+		for _, user := range users {
+			sanitizedUsers = append(sanitizedUsers, user.Sanitize())
+		}
+
 		response := &GetUsersResponse{
-			Users: users,
+			Users: sanitizedUsers,
 		}
 
 		return c.JSON(http.StatusOK, response)
