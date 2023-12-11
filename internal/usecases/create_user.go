@@ -22,32 +22,32 @@ type (
 	}
 
 	createUserUseCase struct {
-		UserRepository repositories.UserRepository
-		CryptoProvider cryptography.CryptoProvider
+		userRepository repositories.UserRepository
+		cryptoProvider cryptography.CryptoProvider
 	}
 )
 
 func NewCreateUserUseCase(userRepo repositories.UserRepository, cryptoProvider cryptography.CryptoProvider) CreateUserUseCase {
 	return &createUserUseCase{
-		UserRepository: userRepo,
-		CryptoProvider: cryptoProvider,
+		userRepository: userRepo,
+		cryptoProvider: cryptoProvider,
 	}
 }
 
 func (uc createUserUseCase) Create(params CreateUserParams) (*entities.User, error) {
-	emailAlreadyExists, _ := uc.UserRepository.FindByEmail(params.Email)
+	emailAlreadyExists, _ := uc.userRepository.FindByEmail(params.Email)
 
 	if emailAlreadyExists != nil {
 		return nil, custom_errors.NewEmailAlreadyExistsError(errors.New(""), params.Email)
 	}
 
-	encryptedPassword, err := uc.CryptoProvider.Hash(params.Password)
+	encryptedPassword, err := uc.cryptoProvider.Hash(params.Password)
 
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError(err)
 	}
 
-	user, err := uc.UserRepository.Create(repositories.CreateUserParams{
+	user, err := uc.userRepository.Create(repositories.CreateUserParams{
 		Name:        params.Name,
 		Email:       params.Email,
 		Password:    encryptedPassword,

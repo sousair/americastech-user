@@ -30,30 +30,30 @@ type (
 	}
 
 	userSignInUseCase struct {
-		UserRepository repositories.UserRepository
-		CryptoProvider cryptography.CryptoProvider
+		userRepository repositories.UserRepository
+		cryptoProvider cryptography.CryptoProvider
 	}
 )
 
 func NewUserSignInUseCase(userRepo repositories.UserRepository, cryptoProvider cryptography.CryptoProvider) UserSignInUseCase {
 	return &userSignInUseCase{
-		UserRepository: userRepo,
-		CryptoProvider: cryptoProvider,
+		userRepository: userRepo,
+		cryptoProvider: cryptoProvider,
 	}
 }
 
 func (uc userSignInUseCase) SignIn(params UserSignInParams) (response *UserSignInResponse, err error) {
-	user, err := uc.UserRepository.FindByEmail(params.Email)
+	user, err := uc.userRepository.FindByEmail(params.Email)
 
 	if err != nil {
 		return nil, custom_errors.NewUserNotFoundError(err)
 	}
 
-	if err := uc.CryptoProvider.Compare(user.Password, params.Password); err != nil {
+	if err := uc.cryptoProvider.Compare(user.Password, params.Password); err != nil {
 		return nil, custom_errors.NewInvalidPasswordError(err)
 	}
 
-	token, err := uc.CryptoProvider.GenerateAuthToken(cryptography.GenerateAuthTokenParams{
+	token, err := uc.cryptoProvider.GenerateAuthToken(cryptography.GenerateAuthTokenParams{
 		Payload: map[string]interface{}{
 			"id":    user.ID,
 			"name":  user.Name,
