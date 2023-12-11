@@ -1,8 +1,10 @@
 package usecases
 
 import (
+	"errors"
+
 	"github.com/sousair/americastech-user/internal/entities"
-	"github.com/sousair/americastech-user/internal/errors"
+	custom_errors "github.com/sousair/americastech-user/internal/errors"
 	"github.com/sousair/americastech-user/internal/repositories"
 )
 
@@ -32,12 +34,10 @@ func NewCreateUserUseCase(userRepo repositories.UserRepository) CreateUserUseCas
 }
 
 func (uc *createUserUseCase) Create(params CreateUserParams) (*entities.User, error) {
-	emailAlreadyExists, err := uc.UserRepository.FindByEmail(params.Email)
+	emailAlreadyExists, _ := uc.UserRepository.FindByEmail(params.Email)
 
 	if emailAlreadyExists != nil {
-		return nil, &errors.EmailAlreadyExists{
-			Email: params.Email,
-		}
+		return nil, custom_errors.NewEmailAlreadyExistsError(errors.New(""), params.Email)
 	}
 
 	user, err := uc.UserRepository.Create(repositories.CreateUserParams{
@@ -48,8 +48,7 @@ func (uc *createUserUseCase) Create(params CreateUserParams) (*entities.User, er
 	})
 
 	if err != nil {
-		// TODO: Make a custom error for internal server error
-		return nil, err
+		return nil, custom_errors.NewInternalServerError(err)
 	}
 
 	return user, nil

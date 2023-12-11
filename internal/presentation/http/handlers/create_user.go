@@ -1,7 +1,11 @@
 package http_handlers
 
 import (
+	"errors"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	custom_errors "github.com/sousair/americastech-user/internal/errors"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
 	"github.com/sousair/americastech-user/internal/usecases"
 	"gorm.io/gorm"
@@ -22,15 +26,15 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 		var createUserRequest CreateUserRequest
 
 		if err := c.Bind(&createUserRequest); err != nil {
-			return c.JSON(400, map[string]string{
+			return c.JSON(http.StatusBadRequest, map[string]string{
 				// TODO: Improve this message to be less generic
-				"message": "Invalid request body",
+				"message": "invalid request body",
 			})
 		}
 
 		if createUserRequest.Password != createUserRequest.ConfirmationPassword {
-			return c.JSON(400, map[string]string{
-				"message": "Password and confirmation password does not match",
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": "password and confirmation_password does not match",
 			})
 		}
 
@@ -45,13 +49,20 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 		})
 
 		if err != nil {
-			// TODO: Improve this
-			return c.JSON(400, map[string]string{
-				"message": err.Error(),
-			})
+			if errors.As(err, &custom_errors.EmailAlreadyExistsError) {
+				return c.JSON(http.StatusBadRequest, map[string]string{
+					"message": err.Error(),
+				})
+			}
+
+			if errors.As(err, &custom_errors.InternalServerError) {
+				return c.JSON(http.StatusInternalServerError, map[string]string{
+					"message": err.Error(),
+				})
+			}
 		}
 
-		return c.JSON(200, map[string]interface{}{
+		return c.JSON(http.StatusCreated, map[string]interface{}{
 			"user": user,
 		})
 	}
