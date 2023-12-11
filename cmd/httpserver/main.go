@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	gorm_models "github.com/sousair/americastech-user/internal/infra/database/models"
 	http_handlers "github.com/sousair/americastech-user/internal/presentation/http/handlers"
+	http_middlewares "github.com/sousair/americastech-user/internal/presentation/http/middlewares"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -30,12 +31,13 @@ func main() {
 
 	e := echo.New()
 
+	userAuthMiddleware := http_middlewares.UserAuthMiddleware
+
 	e.POST("/users", http_handlers.CreateUserHandler(db))
 	e.POST("/users/sign-in", http_handlers.CreateUserSignInHandler(db))
 
-	// TODO: Create a middleware to check if the user is authenticated
 	// ! This should be an admin route in the future
-	e.GET("/users", http_handlers.CreateGetUsersHandler(db))
+	e.GET("/users", userAuthMiddleware(http_handlers.CreateGetUsersHandler(db)))
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

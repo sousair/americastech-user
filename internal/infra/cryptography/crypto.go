@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/sousair/americastech-user/internal/providers/cryptography"
+	"github.com/sousair/americastech-user/internal/usecases"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/dgrijalva/jwt-go"
@@ -12,6 +13,11 @@ import (
 type (
 	CryptoProvider struct {
 		userTokenSecret string
+	}
+
+	UserTokenClaims struct {
+		usecases.TokenPayload
+		jwt.StandardClaims
 	}
 )
 
@@ -44,5 +50,30 @@ func (cp CryptoProvider) GenerateAuthToken(params cryptography.GenerateAuthToken
 		"exp":   params.ExpirationTime.Unix(),
 	}
 
-	return jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims(userPayload)).SignedString([]byte(cp.userTokenSecret))
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, userPayload).SignedString([]byte(cp.userTokenSecret))
+}
+
+func (cp CryptoProvider) VerifyAuthToken(token string) (payload map[string]interface{}, err error) {
+	claims := &UserTokenClaims{}
+	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(cp.userTokenSecret), nil
+	})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, err
+		}
+
+		return nil, err
+	}
+
+	if !parsedToken.Valid {
+		return nil, jwt.ErrInvalidKey
+	}
+
+	return map[string]interface{}{
+		"id":    claims.ID,
+		"name":  claims.Name,
+		"email": claims.Email,
+	}, nil
 }
