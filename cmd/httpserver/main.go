@@ -38,6 +38,7 @@ func main() {
 
 	// ! This should be an admin route in the future
 	e.GET("/users", userAuthMiddleware(http_handlers.CreateGetUsersHandler(db)))
+	e.GET("/users/:id", userAuthMiddleware(http_handlers.CreateGetUserHandler(db)))
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

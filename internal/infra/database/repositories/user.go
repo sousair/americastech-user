@@ -22,7 +22,7 @@ func NewUserRepository(db *gorm.DB) repositories.UserRepository {
 	}
 }
 
-func (r *UserRepository) Create(params repositories.CreateUserParams) (*entities.User, error) {
+func (r UserRepository) Create(params repositories.CreateUserParams) (*entities.User, error) {
 	user := &gorm_models.User{
 		ID:          uuid.New().String(),
 		Name:        params.Name,
@@ -40,7 +40,7 @@ func (r *UserRepository) Create(params repositories.CreateUserParams) (*entities
 	return user.ToEntity(), nil
 }
 
-func (r *UserRepository) FindByEmail(email string) (*entities.User, error) {
+func (r UserRepository) FindByEmail(email string) (*entities.User, error) {
 	user := &gorm_models.User{}
 
 	if err := r.db.Where("email = ?", email).First(user).Error; err != nil {
@@ -50,7 +50,7 @@ func (r *UserRepository) FindByEmail(email string) (*entities.User, error) {
 	return user.ToEntity(), nil
 }
 
-func (r *UserRepository) FindAll() ([]*entities.User, error) {
+func (r UserRepository) FindAll() ([]*entities.User, error) {
 	users := make([]*gorm_models.User, 0)
 
 	if err := r.db.Find(&users).Error; err != nil {
@@ -64,4 +64,14 @@ func (r *UserRepository) FindAll() ([]*entities.User, error) {
 	}
 
 	return usersEntities, nil
+}
+
+func (r UserRepository) FindOneBy(where map[string]interface{}) (*entities.User, error) {
+	userModel := &gorm_models.User{}
+
+	if err := r.db.Where(where).First(userModel).Error; err != nil {
+		return nil, err
+	}
+
+	return userModel.ToEntity(), nil
 }
