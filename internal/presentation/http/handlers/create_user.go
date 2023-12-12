@@ -23,7 +23,6 @@ type (
 	}
 
 	CreateUserResponse struct {
-		// TODO: Make a sanitized user struct
 		User *entities.SanitizedUser `json:"user"`
 	}
 )

@@ -33,10 +33,8 @@ func CreateGetUsersHandler(db *gorm.DB) func(c echo.Context) error {
 			sanitizedUsers = append(sanitizedUsers, user.Sanitize())
 		}
 
-		response := &GetUsersResponse{
+		return c.JSON(http.StatusOK, GetUsersResponse{
 			Users: sanitizedUsers,
-		}
-
-		return c.JSON(http.StatusOK, response)
+		})
 	}
 }

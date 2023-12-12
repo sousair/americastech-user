@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sousair/americastech-user/internal/entities"
 	custom_errors "github.com/sousair/americastech-user/internal/errors"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
 	"gorm.io/gorm"
@@ -15,6 +16,10 @@ type (
 		Name        string `json:"name"`
 		Email       string `json:"email"`
 		PhoneNumber string `json:"phone_number"`
+	}
+
+	UpdateUserResponse struct {
+		User *entities.SanitizedUser `json:"user"`
 	}
 )
 
@@ -66,6 +71,8 @@ func CreateUpdateUserHandler(db *gorm.DB) func(c echo.Context) error {
 			})
 		}
 
-		return c.JSON(http.StatusOK, user.Sanitize())
+		return c.JSON(http.StatusOK, UpdateUserResponse{
+			User: user.Sanitize(),
+		})
 	}
 }

@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/sousair/americastech-user/internal/entities"
+	custom_errors "github.com/sousair/americastech-user/internal/errors"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
 	"gorm.io/gorm"
 )
@@ -11,6 +13,10 @@ import (
 type (
 	GetUserRequest struct {
 		ID string `param:"id"`
+	}
+
+	GetUserResponse struct {
+		User *entities.SanitizedUser `json:"user"`
 	}
 )
 
@@ -40,16 +46,18 @@ func CreateGetUserHandler(db *gorm.DB) func(c echo.Context) error {
 
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": err.Error(),
+				"message": custom_errors.EmailAlreadyExistsError.Error(),
 			})
 		}
 
 		if user == nil {
 			return c.JSON(http.StatusNotFound, map[string]string{
-				"message": "user not found",
+				"message": custom_errors.UserNotFoundError.Error(),
 			})
 		}
 
-		return c.JSON(http.StatusOK, user.Sanitize())
+		return c.JSON(http.StatusOK, GetUserResponse{
+			User: user.Sanitize(),
+		})
 	}
 }
