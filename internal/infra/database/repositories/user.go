@@ -40,16 +40,6 @@ func (r UserRepository) Create(params repositories.CreateUserParams) (*entities.
 	return user.ToEntity(), nil
 }
 
-func (r UserRepository) FindByEmail(email string) (*entities.User, error) {
-	user := &gorm_models.User{}
-
-	if err := r.db.Where("email = ?", email).First(user).Error; err != nil {
-		return nil, err
-	}
-
-	return user.ToEntity(), nil
-}
-
 func (r UserRepository) FindAll() ([]*entities.User, error) {
 	users := make([]*gorm_models.User, 0)
 

@@ -43,7 +43,9 @@ func NewUserSignInUseCase(userRepo repositories.UserRepository, cryptoProvider c
 }
 
 func (uc userSignInUseCase) SignIn(params UserSignInParams) (response *UserSignInResponse, err error) {
-	user, err := uc.userRepository.FindByEmail(params.Email)
+	user, err := uc.userRepository.FindOneBy(map[string]interface{}{
+		"email": params.Email,
+	})
 
 	if err != nil {
 		return nil, custom_errors.NewUserNotFoundError(err)

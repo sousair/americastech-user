@@ -12,7 +12,6 @@ type (
 
 	UserRepository interface {
 		Create(params CreateUserParams) (*entities.User, error)
-		FindByEmail(email string) (*entities.User, error)
 		FindAll() ([]*entities.User, error)
 		FindOneBy(where map[string]interface{}) (*entities.User, error)
 	}
