@@ -3,12 +3,15 @@ package custom_errors
 import "fmt"
 
 // TODO: Break this in multiple files
+var EmailAlreadyExistsError = &emailAlreadyExistsError{}
+var InternalServerError = &internalServerError{}
+var UserNotFoundError = &userNotFoundError{}
+var InvalidPasswordError = &invalidPasswordError{}
+
 type emailAlreadyExistsError struct {
 	email string
 	cause error
 }
-
-var EmailAlreadyExistsError = &emailAlreadyExistsError{}
 
 func NewEmailAlreadyExistsError(err error, email string) *emailAlreadyExistsError {
 	return &emailAlreadyExistsError{
@@ -25,8 +28,6 @@ type internalServerError struct {
 	cause error
 }
 
-var InternalServerError = &internalServerError{}
-
 func NewInternalServerError(cause error) *internalServerError {
 	return &internalServerError{
 		cause: cause,
@@ -41,8 +42,6 @@ type userNotFoundError struct {
 	cause error
 }
 
-var UserNotFoundError = &userNotFoundError{}
-
 func NewUserNotFoundError(cause error) *userNotFoundError {
 	return &userNotFoundError{
 		cause: cause,
@@ -56,8 +55,6 @@ func (e userNotFoundError) Error() string {
 type invalidPasswordError struct {
 	cause error
 }
-
-var InvalidPasswordError = &invalidPasswordError{}
 
 func NewInvalidPasswordError(cause error) *invalidPasswordError {
 	return &invalidPasswordError{

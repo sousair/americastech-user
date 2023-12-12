@@ -65,3 +65,21 @@ func (r UserRepository) FindOneBy(where map[string]interface{}) (*entities.User,
 
 	return userModel.ToEntity(), nil
 }
+
+func (r UserRepository) Update(user *entities.User) (*entities.User, error) {
+	userModel := &gorm_models.User{
+		ID:          user.ID,
+		Name:        user.Name,
+		Email:       user.Email,
+		PhoneNumber: user.PhoneNumber,
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := r.db.Model(userModel).Updates(userModel).Error; err != nil {
+		return nil, err
+	}
+
+	return r.FindOneBy(map[string]interface{}{
+		"id": userModel.ID,
+	})
+}

@@ -40,5 +40,7 @@ func main() {
 	e.GET("/users", userAuthMiddleware(http_handlers.CreateGetUsersHandler(db)))
 	e.GET("/users/:id", userAuthMiddleware(http_handlers.CreateGetUserHandler(db)))
 
+	e.PUT("/users/:id", userAuthMiddleware(http_handlers.CreateUpdateUserHandler(db)))
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
