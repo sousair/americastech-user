@@ -41,6 +41,8 @@ func main() {
 	e.GET("/users/:id", userAuthMiddleware(http_handlers.CreateGetUserHandler(db)))
 
 	e.PUT("/users/:id", userAuthMiddleware(http_handlers.CreateUpdateUserHandler(db)))
+	// ! This should be an admin route in the future
+	e.DELETE("/users/:id", userAuthMiddleware(http_handlers.CreateDeleteUserHandler(db)))
 
 	e.Logger.Fatal(e.Start(":8080"))
 }

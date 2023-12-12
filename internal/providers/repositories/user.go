@@ -15,5 +15,6 @@ type (
 		FindAll() ([]*entities.User, error)
 		FindOneBy(where map[string]interface{}) (*entities.User, error)
 		Update(user *entities.User) (*entities.User, error)
+		Delete(id string) error
 	}
 )

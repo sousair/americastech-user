@@ -83,3 +83,11 @@ func (r UserRepository) Update(user *entities.User) (*entities.User, error) {
 		"id": userModel.ID,
 	})
 }
+
+func (r UserRepository) Delete(id string) error {
+	if err := r.db.Unscoped().Delete(&gorm_models.User{ID: id}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
