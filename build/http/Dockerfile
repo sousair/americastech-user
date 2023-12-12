@@ -4,7 +4,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin ./cmd/...
+ENV CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64
+
+RUN go build -o /app/bin/httpserver ./cmd/httpserver/main.go
 
 #
 

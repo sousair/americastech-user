@@ -1,14 +1,25 @@
 version: '3'
 
 services:
-  user-api:
-    image: user-api
-    container_name: user-api
+  user-http:
+    image: user-http
+    container_name: user-http
     build: 
       context: ../
-      dockerfile: ./build/Dockerfile
+      dockerfile: ./build/http/Dockerfile
     ports:
       - "8080:8080"
+    depends_on:
+      - postgres
+
+  user-grpc:
+    image: user-grpc
+    container_name: user-grpc
+    build: 
+      context: ../
+      dockerfile: ./build/grpc/Dockerfile
+    ports:
+      - "9090:9090"
     depends_on:
       - postgres
   
