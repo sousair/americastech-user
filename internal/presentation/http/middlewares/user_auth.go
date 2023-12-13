@@ -2,10 +2,11 @@ package http_middlewares
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
+	jwt_provider "github.com/sousair/americastech-user/internal/infra/jwt"
 )
 
 func UserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
@@ -28,9 +29,10 @@ func UserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 
 		jwtToken := authHeaderParts[1]
 
-		cryptoProvider := crypto_provider.NewCryptoProvider()
+		userSecret := os.Getenv("USER_TOKEN_SECRET")
+		cryptoProvider := jwt_provider.NewJwtProvider(userSecret)
 
-		payload, err := cryptoProvider.VerifyAuthToken(jwtToken)
+		payload, err := cryptoProvider.ValidateAuthToken(jwtToken)
 
 		if err != nil {
 			return c.JSON(http.StatusUnauthorized, map[string]string{

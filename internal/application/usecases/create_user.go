@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
-	"github.com/sousair/americastech-user/internal/application/providers/cryptography"
+	"github.com/sousair/americastech-user/internal/application/providers/cipher"
 	"github.com/sousair/americastech-user/internal/application/providers/repositories"
 	"github.com/sousair/americastech-user/internal/core/entities"
 	"github.com/sousair/americastech-user/internal/core/usecases"
@@ -13,14 +13,14 @@ import (
 type (
 	createUserUseCase struct {
 		userRepository repositories.UserRepository
-		cryptoProvider cryptography.CryptoProvider
+		cipherProvider cipher.CipherProvider
 	}
 )
 
-func NewCreateUserUseCase(userRepo repositories.UserRepository, cryptoProvider cryptography.CryptoProvider) usecases.CreateUserUseCase {
+func NewCreateUserUseCase(userRepo repositories.UserRepository, cipherProvider cipher.CipherProvider) usecases.CreateUserUseCase {
 	return &createUserUseCase{
 		userRepository: userRepo,
-		cryptoProvider: cryptoProvider,
+		cipherProvider: cipherProvider,
 	}
 }
 
@@ -33,7 +33,7 @@ func (uc createUserUseCase) Create(params usecases.CreateUserParams) (*entities.
 		return nil, custom_errors.NewEmailAlreadyExistsError(errors.New(""), params.Email)
 	}
 
-	encryptedPassword, err := uc.cryptoProvider.Hash(params.Password)
+	encryptedPassword, err := uc.cipherProvider.Hash(params.Password)
 
 	if err != nil {
 		return nil, err

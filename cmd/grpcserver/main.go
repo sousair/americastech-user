@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
 
 	"github.com/joho/godotenv"
-	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
+	jwt_provider "github.com/sousair/americastech-user/internal/infra/jwt"
 	grpc_handlers "github.com/sousair/americastech-user/internal/presentation/grpc/handlers"
 	"google.golang.org/grpc"
 )
@@ -23,10 +24,11 @@ func main() {
 		panic(err)
 	}
 
-	cryptoProvider := crypto_provider.NewCryptoProvider()
+	userSecret := os.Getenv("USER_TOKEN_SECRET")
+	jwtProvider := jwt_provider.NewJwtProvider(userSecret)
 	server := grpc.NewServer()
 
-	grpc_handlers.NewUserServiceServer(server, cryptoProvider)
+	grpc_handlers.NewUserServiceServer(server, jwtProvider)
 
 	fmt.Println("gRPC Server is running on port 9090")
 

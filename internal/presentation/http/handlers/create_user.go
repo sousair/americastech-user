@@ -9,8 +9,9 @@ import (
 	app_usecases "github.com/sousair/americastech-user/internal/application/usecases"
 	"github.com/sousair/americastech-user/internal/core/entities"
 	"github.com/sousair/americastech-user/internal/core/usecases"
-	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
+	bcrypt_cipher "github.com/sousair/americastech-user/internal/infra/cipher"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -46,9 +47,10 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 		}
 
 		userRepo := gorm_repositories.NewUserRepository(db)
-		cryptoProvider := crypto_provider.NewCryptoProvider()
+		// Get cost from env.
+		cipherProvider := bcrypt_cipher.NewCipherProvider(bcrypt.DefaultCost)
 
-		createUserUC := app_usecases.NewCreateUserUseCase(userRepo, cryptoProvider)
+		createUserUC := app_usecases.NewCreateUserUseCase(userRepo, cipherProvider)
 
 		user, err := createUserUC.Create(usecases.CreateUserParams{
 			Name:        createUserRequest.Name,
