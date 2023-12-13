@@ -1,13 +1,13 @@
 package http_handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/core/entities"
-	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
-	"gorm.io/gorm"
+	"github.com/sousair/americastech-user/internal/core/usecases"
 )
 
 type (
@@ -21,58 +21,55 @@ type (
 	UpdateUserResponse struct {
 		User *entities.SanitizedUser `json:"user"`
 	}
+
+	updateUserHandler struct {
+		updateUserUC usecases.UpdateUserUseCase
+	}
 )
 
-func CreateUpdateUserHandler(db *gorm.DB) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		var getUserRequest UpdateUserRequest
+func NewUpdateUserHandler(updateUserUC usecases.UpdateUserUseCase) *updateUserHandler {
+	return &updateUserHandler{
+		updateUserUC: updateUserUC,
+	}
+}
 
-		if err := c.Bind(&getUserRequest); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "invalid request body",
-			})
-		}
+func (h *updateUserHandler) Handle(c echo.Context) error {
+	var getUserRequest UpdateUserRequest
 
-		authUserId := c.Get("user_id").(string)
-
-		if authUserId != getUserRequest.ID {
-			return c.JSON(http.StatusForbidden, map[string]string{
-				"message": "you are not allowed to access this resource",
-			})
-		}
-
-		userRepo := gorm_repositories.NewUserRepository(db)
-
-		user, err := userRepo.FindOneBy(map[string]interface{}{
-			"id": getUserRequest.ID,
-		})
-
-		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				return c.JSON(http.StatusNotFound, map[string]string{
-					"message": custom_errors.UserNotFoundError.Error(),
-				})
-			}
-
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": custom_errors.InternalServerError.Error(),
-			})
-		}
-
-		user.Name = getUserRequest.Name
-		user.Email = getUserRequest.Email
-		user.PhoneNumber = getUserRequest.PhoneNumber
-
-		user, err = userRepo.Update(user)
-
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": custom_errors.InternalServerError.Error(),
-			})
-		}
-
-		return c.JSON(http.StatusOK, UpdateUserResponse{
-			User: user.Sanitize(),
+	if err := c.Bind(&getUserRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid request body",
 		})
 	}
+
+	authUserId := c.Get("user_id").(string)
+
+	if authUserId != getUserRequest.ID {
+		return c.JSON(http.StatusForbidden, map[string]string{
+			"message": "you are not allowed to access this resource",
+		})
+	}
+
+	user, err := h.updateUserUC.Update(usecases.UpdateUserParams{
+		ID:          getUserRequest.ID,
+		Name:        getUserRequest.Name,
+		Email:       getUserRequest.Email,
+		PhoneNumber: getUserRequest.PhoneNumber,
+	})
+
+	if err != nil {
+		if errors.As(err, &custom_errors.UserNotFoundError) {
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": custom_errors.InternalServerError.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, UpdateUserResponse{
+		User: user.Sanitize(),
+	})
 }

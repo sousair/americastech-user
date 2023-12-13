@@ -2,19 +2,19 @@ package usecases
 
 type (
 	UserSignInParams struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email    string
+		Password string
 	}
 
 	UserSignInResponse struct {
-		Token   string       `json:"token"`
-		Payload TokenPayload `json:"payload"`
+		Token   string
+		Payload TokenPayload
 	}
 
 	TokenPayload struct {
-		ID    string `json:"id"`
-		Name  string `json:"name"`
-		Email string `json:"email"`
+		ID    string
+		Name  string
+		Email string
 	}
 
 	UserSignInUseCase interface {

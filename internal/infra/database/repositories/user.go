@@ -44,6 +44,9 @@ func (r UserRepository) FindAll() ([]*entities.User, error) {
 	users := make([]*gorm_models.User, 0)
 
 	if err := r.db.Find(&users).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 
@@ -60,6 +63,9 @@ func (r UserRepository) FindOneBy(where map[string]interface{}) (*entities.User,
 	userModel := &gorm_models.User{}
 
 	if err := r.db.Where(where).First(userModel).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
 		return nil, err
 	}
 

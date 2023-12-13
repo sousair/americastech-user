@@ -6,13 +6,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
-	app_usecases "github.com/sousair/americastech-user/internal/application/usecases"
 	"github.com/sousair/americastech-user/internal/core/entities"
 	"github.com/sousair/americastech-user/internal/core/usecases"
-	bcrypt_cipher "github.com/sousair/americastech-user/internal/infra/cipher"
-	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
-	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type (
@@ -27,54 +22,54 @@ type (
 	CreateUserResponse struct {
 		User *entities.SanitizedUser `json:"user"`
 	}
+
+	createUserHandler struct {
+		createUserUC usecases.CreateUserUseCase
+	}
 )
 
-func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		var createUserRequest CreateUserRequest
+func NewCreateUserHandler(createUserUC usecases.CreateUserUseCase) *createUserHandler {
+	return &createUserHandler{
+		createUserUC: createUserUC,
+	}
+}
 
-		if err := c.Bind(&createUserRequest); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				// TODO: Improve this message to be less generic
-				"message": "invalid request body",
-			})
-		}
+func (h *createUserHandler) Handle(c echo.Context) error {
+	var createUserRequest CreateUserRequest
 
-		if createUserRequest.Password != createUserRequest.ConfirmationPassword {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "password and confirmation_password does not match",
-			})
-		}
-
-		userRepo := gorm_repositories.NewUserRepository(db)
-		// Get cost from env.
-		cipherProvider := bcrypt_cipher.NewCipherProvider(bcrypt.DefaultCost)
-
-		createUserUC := app_usecases.NewCreateUserUseCase(userRepo, cipherProvider)
-
-		user, err := createUserUC.Create(usecases.CreateUserParams{
-			Name:        createUserRequest.Name,
-			Email:       createUserRequest.Email,
-			Password:    createUserRequest.Password,
-			PhoneNumber: createUserRequest.PhoneNumber,
-		})
-
-		if err != nil {
-			if errors.As(err, &custom_errors.EmailAlreadyExistsError) {
-				return c.JSON(http.StatusBadRequest, map[string]string{
-					"message": err.Error(),
-				})
-			}
-
-			if errors.As(err, &custom_errors.InternalServerError) {
-				return c.JSON(http.StatusInternalServerError, map[string]string{
-					"message": err.Error(),
-				})
-			}
-		}
-
-		return c.JSON(http.StatusCreated, map[string]interface{}{
-			"user": user.Sanitize(),
+	if err := c.Bind(&createUserRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			// TODO: Improve this message to be less generic
+			"message": "invalid request body",
 		})
 	}
+
+	if createUserRequest.Password != createUserRequest.ConfirmationPassword {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "password and confirmation_password does not match",
+		})
+	}
+
+	user, err := h.createUserUC.Create(usecases.CreateUserParams{
+		Name:        createUserRequest.Name,
+		Email:       createUserRequest.Email,
+		Password:    createUserRequest.Password,
+		PhoneNumber: createUserRequest.PhoneNumber,
+	})
+
+	if err != nil {
+		if errors.As(err, &custom_errors.EmailAlreadyExistsError) {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": custom_errors.InternalServerError.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusCreated, CreateUserResponse{
+		User: user.Sanitize(),
+	})
 }

@@ -4,10 +4,10 @@ import "github.com/sousair/americastech-user/internal/core/entities"
 
 type (
 	CreateUserParams struct {
-		Name        string `json:"username"`
-		Email       string `json:"email"`
-		Password    string `json:"password"`
-		PhoneNumber string `json:"phone_number"`
+		Name        string
+		Email       string
+		Password    string
+		PhoneNumber string
 	}
 
 	CreateUserUseCase interface {

@@ -1,13 +1,13 @@
 package http_handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/core/entities"
-	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
-	"gorm.io/gorm"
+	"github.com/sousair/americastech-user/internal/core/usecases"
 )
 
 type (
@@ -18,46 +18,52 @@ type (
 	GetUserResponse struct {
 		User *entities.SanitizedUser `json:"user"`
 	}
+
+	getUserHandler struct {
+		getUserUC usecases.GetUserUseCase
+	}
 )
 
-func CreateGetUserHandler(db *gorm.DB) func(c echo.Context) error {
-	return func(c echo.Context) error {
-		var getUserRequest GetUserRequest
+func NewGetUserHandler(getUserUC usecases.GetUserUseCase) *getUserHandler {
+	return &getUserHandler{
+		getUserUC: getUserUC,
+	}
+}
 
-		if err := c.Bind(&getUserRequest); err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]string{
-				"message": "invalid request body",
-			})
-		}
+func (h *getUserHandler) Handle(c echo.Context) error {
+	var getUserRequest GetUserRequest
 
-		authUserId := c.Get("user_id").(string)
-
-		if authUserId != getUserRequest.ID {
-			return c.JSON(http.StatusForbidden, map[string]string{
-				"message": "you are not allowed to access this resource",
-			})
-		}
-
-		userRepo := gorm_repositories.NewUserRepository(db)
-
-		user, err := userRepo.FindOneBy(map[string]interface{}{
-			"id": getUserRequest.ID,
-		})
-
-		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{
-				"message": custom_errors.EmailAlreadyExistsError.Error(),
-			})
-		}
-
-		if user == nil {
-			return c.JSON(http.StatusNotFound, map[string]string{
-				"message": custom_errors.UserNotFoundError.Error(),
-			})
-		}
-
-		return c.JSON(http.StatusOK, GetUserResponse{
-			User: user.Sanitize(),
+	if err := c.Bind(&getUserRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "invalid request body",
 		})
 	}
+
+	authUserId := c.Get("user_id").(string)
+
+	if authUserId != getUserRequest.ID {
+		return c.JSON(http.StatusForbidden, map[string]string{
+			"message": "you are not allowed to access this resource",
+		})
+	}
+
+	user, err := h.getUserUC.Get(usecases.GetUserParams{
+		ID: getUserRequest.ID,
+	})
+
+	if err != nil {
+		if errors.As(err, &custom_errors.UserNotFoundError) {
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"message": err.Error(),
+			})
+		}
+
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"message": custom_errors.EmailAlreadyExistsError.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, GetUserResponse{
+		User: user.Sanitize(),
+	})
 }

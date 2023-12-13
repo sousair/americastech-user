@@ -1,6 +1,7 @@
 package app_usecases
 
 import (
+	"errors"
 	"time"
 
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
@@ -30,7 +31,13 @@ func (uc userSignInUseCase) SignIn(params usecases.UserSignInParams) (response *
 	})
 
 	if err != nil {
-		return nil, custom_errors.NewUserNotFoundError(err)
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, custom_errors.NewUserNotFoundError(
+			errors.New("user record not found"),
+		)
 	}
 
 	if err := uc.cipherProvider.Compare(user.Password, params.Password); err != nil {

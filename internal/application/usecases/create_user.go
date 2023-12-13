@@ -1,7 +1,7 @@
 package app_usecases
 
 import (
-	"errors"
+	"fmt"
 
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/application/providers/cipher"
@@ -10,12 +10,10 @@ import (
 	"github.com/sousair/americastech-user/internal/core/usecases"
 )
 
-type (
-	createUserUseCase struct {
-		userRepository repositories.UserRepository
-		cipherProvider cipher.CipherProvider
-	}
-)
+type createUserUseCase struct {
+	userRepository repositories.UserRepository
+	cipherProvider cipher.CipherProvider
+}
 
 func NewCreateUserUseCase(userRepo repositories.UserRepository, cipherProvider cipher.CipherProvider) usecases.CreateUserUseCase {
 	return &createUserUseCase{
@@ -30,7 +28,10 @@ func (uc createUserUseCase) Create(params usecases.CreateUserParams) (*entities.
 	})
 
 	if emailAlreadyExists != nil {
-		return nil, custom_errors.NewEmailAlreadyExistsError(errors.New(""), params.Email)
+		return nil, custom_errors.NewEmailAlreadyExistsError(
+			fmt.Errorf("email %s already registered by user_id: %s", params.Email, emailAlreadyExists.ID),
+			params.Email,
+		)
 	}
 
 	encryptedPassword, err := uc.cipherProvider.Hash(params.Password)
