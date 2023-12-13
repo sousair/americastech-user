@@ -5,10 +5,11 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	custom_errors "github.com/sousair/americastech-user/internal/errors"
+	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
+	app_usecases "github.com/sousair/americastech-user/internal/application/usecases"
+	"github.com/sousair/americastech-user/internal/core/usecases"
 	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
-	"github.com/sousair/americastech-user/internal/usecases"
 	"gorm.io/gorm"
 )
 
@@ -38,7 +39,7 @@ func CreateUserSignInHandler(db *gorm.DB) func(c echo.Context) error {
 		cryptoProvider := crypto_provider.NewCryptoProvider()
 		userRepo := gorm_repositories.NewUserRepository(db)
 
-		userSignInUC := usecases.NewUserSignInUseCase(userRepo, cryptoProvider)
+		userSignInUC := app_usecases.NewUserSignInUseCase(userRepo, cryptoProvider)
 
 		signResponse, err := userSignInUC.SignIn(usecases.UserSignInParams{
 			Email:    userSignInRequest.Email,

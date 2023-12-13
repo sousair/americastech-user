@@ -3,7 +3,7 @@ package gorm_models
 import (
 	"time"
 
-	"github.com/sousair/americastech-user/internal/entities"
+	"github.com/sousair/americastech-user/internal/core/entities"
 	"gorm.io/gorm"
 )
 

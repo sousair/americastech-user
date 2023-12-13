@@ -6,12 +6,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
-	"github.com/sousair/americastech-user/internal/usecases"
 )
-
-type TokenPayload struct {
-	usecases.TokenPayload
-}
 
 func UserAuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

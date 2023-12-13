@@ -3,11 +3,11 @@ package crypto_provider
 import (
 	"os"
 
-	"github.com/sousair/americastech-user/internal/providers/cryptography"
-	"github.com/sousair/americastech-user/internal/usecases"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sousair/americastech-user/internal/application/providers/cryptography"
+	"github.com/sousair/americastech-user/internal/core/usecases"
 )
 
 type (

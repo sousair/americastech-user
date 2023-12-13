@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/sousair/americastech-user/internal/entities"
+	"github.com/sousair/americastech-user/internal/application/providers/repositories"
+	"github.com/sousair/americastech-user/internal/core/entities"
 	gorm_models "github.com/sousair/americastech-user/internal/infra/database/models"
-	"github.com/sousair/americastech-user/internal/providers/repositories"
 	"gorm.io/gorm"
 )
 

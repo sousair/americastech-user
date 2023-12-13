@@ -1,6 +1,6 @@
 package repositories
 
-import "github.com/sousair/americastech-user/internal/entities"
+import "github.com/sousair/americastech-user/internal/core/entities"
 
 type (
 	CreateUserParams struct {

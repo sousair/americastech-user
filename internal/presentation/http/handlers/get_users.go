@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sousair/americastech-user/internal/entities"
+	"github.com/sousair/americastech-user/internal/core/entities"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
 	"gorm.io/gorm"
 )

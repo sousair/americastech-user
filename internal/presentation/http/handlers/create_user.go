@@ -5,11 +5,12 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	"github.com/sousair/americastech-user/internal/entities"
-	custom_errors "github.com/sousair/americastech-user/internal/errors"
+	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
+	app_usecases "github.com/sousair/americastech-user/internal/application/usecases"
+	"github.com/sousair/americastech-user/internal/core/entities"
+	"github.com/sousair/americastech-user/internal/core/usecases"
 	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
-	"github.com/sousair/americastech-user/internal/usecases"
 	"gorm.io/gorm"
 )
 
@@ -47,7 +48,7 @@ func CreateUserHandler(db *gorm.DB) func(c echo.Context) error {
 		userRepo := gorm_repositories.NewUserRepository(db)
 		cryptoProvider := crypto_provider.NewCryptoProvider()
 
-		createUserUC := usecases.NewCreateUserUseCase(userRepo, cryptoProvider)
+		createUserUC := app_usecases.NewCreateUserUseCase(userRepo, cryptoProvider)
 
 		user, err := createUserUC.Create(usecases.CreateUserParams{
 			Name:        createUserRequest.Name,

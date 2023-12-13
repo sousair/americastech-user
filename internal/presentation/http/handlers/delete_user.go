@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-	custom_errors "github.com/sousair/americastech-user/internal/errors"
+	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	gorm_repositories "github.com/sousair/americastech-user/internal/infra/database/repositories"
 	"gorm.io/gorm"
 )
