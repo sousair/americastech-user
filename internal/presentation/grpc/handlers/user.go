@@ -3,15 +3,25 @@ package grpc_handlers
 import (
 	"context"
 
-	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
+	"github.com/sousair/americastech-user/internal/application/providers/cryptography"
 	"github.com/sousair/americastech-user/internal/presentation/grpc/pb"
+	"google.golang.org/grpc"
 )
 
-type Server struct {
+type UserServiceServer struct {
 	pb.UnimplementedUserServiceServer
+	cryptoProvider cryptography.CryptoProvider
 }
 
-func (s *Server) ValidateUserToken(ctx context.Context, req *pb.ValidateUserTokenRequest) (*pb.ValidateUserTokenResponse, error) {
+func NewUserServiceServer(grpcServer *grpc.Server, cryptoProvider cryptography.CryptoProvider) {
+	userServer := &UserServiceServer{
+		cryptoProvider: cryptoProvider,
+	}
+
+	pb.RegisterUserServiceServer(grpcServer, userServer)
+}
+
+func (h UserServiceServer) ValidateUserToken(ctx context.Context, req *pb.ValidateUserTokenRequest) (*pb.ValidateUserTokenResponse, error) {
 	userToken := req.GetToken()
 
 	if userToken == "" {
@@ -20,9 +30,7 @@ func (s *Server) ValidateUserToken(ctx context.Context, req *pb.ValidateUserToke
 		}, nil
 	}
 
-	cryptoProvider := crypto_provider.NewCryptoProvider()
-
-	_, err := cryptoProvider.VerifyAuthToken(userToken)
+	_, err := h.cryptoProvider.VerifyAuthToken(userToken)
 
 	if err != nil {
 		return &pb.ValidateUserTokenResponse{

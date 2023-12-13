@@ -5,8 +5,8 @@ import (
 	"net"
 
 	"github.com/joho/godotenv"
+	crypto_provider "github.com/sousair/americastech-user/internal/infra/cryptography"
 	grpc_handlers "github.com/sousair/americastech-user/internal/presentation/grpc/handlers"
-	"github.com/sousair/americastech-user/internal/presentation/grpc/pb"
 	"google.golang.org/grpc"
 )
 
@@ -23,9 +23,10 @@ func main() {
 		panic(err)
 	}
 
+	cryptoProvider := crypto_provider.NewCryptoProvider()
 	server := grpc.NewServer()
 
-	pb.RegisterUserServiceServer(server, &grpc_handlers.Server{})
+	grpc_handlers.NewUserServiceServer(server, cryptoProvider)
 
 	fmt.Println("gRPC Server is running on port 9090")
 
