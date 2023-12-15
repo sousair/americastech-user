@@ -57,6 +57,12 @@ func (uc userSignInUseCase) SignIn(params usecases.UserSignInParams) (response *
 		return nil, err
 	}
 
+	if token == "" {
+		return nil, custom_errors.NewInternalServerError(
+			errors.New("error generating jwt token"),
+		)
+	}
+
 	response = &usecases.UserSignInResponse{
 		Token: token,
 		Payload: usecases.TokenPayload{
