@@ -16,6 +16,8 @@ You can refer to the Postman documentation [here](https://).
 ### gRPC
 Used exclusively for user token validation between APIs ([Exchange API]()).
 
+## [Postman Documentation](https://documenter.getpostman.com/view/31834520/2s9Ykn7gnf)
+
 
 ## How to run
 
