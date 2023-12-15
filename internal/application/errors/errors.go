@@ -3,10 +3,13 @@ package custom_errors
 import "fmt"
 
 // TODO: Break this in multiple files
-var EmailAlreadyExistsError = &emailAlreadyExistsError{}
-var InternalServerError = &internalServerError{}
-var UserNotFoundError = &userNotFoundError{}
-var InvalidPasswordError = &invalidPasswordError{}
+
+var (
+	InternalServerError     = &internalServerError{}
+	EmailAlreadyExistsError = &emailAlreadyExistsError{}
+	UserNotFoundError       = &userNotFoundError{}
+	InvalidPasswordError    = &invalidPasswordError{}
+)
 
 type emailAlreadyExistsError struct {
 	email string

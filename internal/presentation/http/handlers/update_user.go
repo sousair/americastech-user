@@ -64,6 +64,12 @@ func (h *updateUserHandler) Handle(c echo.Context) error {
 			})
 		}
 
+		if errors.As(err, &custom_errors.EmailAlreadyExistsError) {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"message": err.Error(),
+			})
+		}
+
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": custom_errors.InternalServerError.Error(),
 		})

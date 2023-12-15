@@ -37,6 +37,23 @@ func (uc updateUserUseCase) Update(params usecases.UpdateUserParams) (*entities.
 		)
 	}
 
+	if params.Email != user.Email {
+		emailAlreadyExists, err := uc.userRepository.FindOneBy(map[string]interface{}{
+			"email": params.Email,
+		})
+
+		if err != nil {
+			return nil, err
+		}
+
+		if emailAlreadyExists != nil {
+			return nil, custom_errors.NewEmailAlreadyExistsError(
+				errors.New("email already exists"),
+				params.Email,
+			)
+		}
+	}
+
 	user.Name = params.Name
 	user.Email = params.Email
 	user.PhoneNumber = params.PhoneNumber
