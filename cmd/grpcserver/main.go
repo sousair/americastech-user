@@ -18,15 +18,20 @@ func main() {
 		panic(err)
 	}
 
-	listener, err := net.Listen("tcp", ":9090")
+	var (
+		userSecret = os.Getenv("USER_TOKEN_SECRET")
+
+		port = os.Getenv("PORT")
+	)
+
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 
 	if err != nil {
 		panic(err)
 	}
 
-	userSecret := os.Getenv("USER_TOKEN_SECRET")
 	jwtProvider := jwt_provider.NewJwtProvider(userSecret)
-	server := grpc.NewServer()
+	server := grpc.NewServer(grpc.EmptyServerOption{})
 
 	grpc_handlers.NewUserServiceServer(server, jwtProvider)
 

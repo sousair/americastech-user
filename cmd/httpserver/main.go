@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -37,10 +38,14 @@ func main() {
 	userAuthMiddleware := http_middlewares.UserAuthMiddleware
 	userRepo := gorm_repositories.NewUserRepository(db)
 
-	userPassCostStr := os.Getenv("USER_PASSWORD_COST")
-	userPassCost, err := strconv.Atoi(userPassCostStr)
+	var (
+		userPassCostStr = os.Getenv("USER_PASSWORD_COST")
+		userTokenSecret = os.Getenv("USER_TOKEN_SECRET")
 
-	userTokenSecret := os.Getenv("USER_TOKEN_SECRET")
+		port = os.Getenv("PORT")
+	)
+
+	userPassCost, err := strconv.Atoi(userPassCostStr)
 
 	if err != nil {
 		panic(err)
@@ -75,5 +80,5 @@ func main() {
 	// // ! This should be an admin route in the future
 	e.DELETE("/users/:id", userAuthMiddleware(deleteUserHandler))
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
 }
