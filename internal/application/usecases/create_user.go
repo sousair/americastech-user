@@ -23,9 +23,13 @@ func NewCreateUserUseCase(userRepo repositories.UserRepository, cipherProvider c
 }
 
 func (uc createUserUseCase) Create(params usecases.CreateUserParams) (*entities.User, error) {
-	emailAlreadyExists, _ := uc.userRepository.FindOneBy(map[string]interface{}{
+	emailAlreadyExists, err := uc.userRepository.FindOneBy(map[string]interface{}{
 		"email": params.Email,
 	})
+
+	if err != nil {
+		return nil, err
+	}
 
 	if emailAlreadyExists != nil {
 		return nil, custom_errors.NewEmailAlreadyExistsError(
