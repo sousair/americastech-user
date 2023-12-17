@@ -35,7 +35,7 @@ func main() {
 
 	grpc_handlers.NewUserServiceServer(server, jwtProvider)
 
-	fmt.Println("gRPC Server is running on port 9090")
+	fmt.Printf("[gRPC] Server is running on port %s\n", port)
 
 	if err := server.Serve(listener); err != nil {
 		panic(err)
