@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/core/entities"
@@ -12,11 +13,11 @@ import (
 
 type (
 	CreateUserRequest struct {
-		Name                 string `json:"name"`
-		Email                string `json:"email"`
-		Password             string `json:"password"`
-		ConfirmationPassword string `json:"confirmation_password"`
-		PhoneNumber          string `json:"phone_number"`
+		Name                 string `json:"name"  validate:"required"`
+		Email                string `json:"email" validate:"required,email"`
+		Password             string `json:"password" validate:"required,min=8,max=32"`
+		ConfirmationPassword string `json:"confirmation_password" validate:"required,eqfield=Password"`
+		PhoneNumber          string `json:"phone_number" validate:"required"`
 	}
 
 	CreateUserResponse struct {
@@ -25,12 +26,14 @@ type (
 
 	createUserHandler struct {
 		createUserUC usecases.CreateUserUseCase
+		validator    *validator.Validate
 	}
 )
 
-func NewCreateUserHandler(createUserUC usecases.CreateUserUseCase) *createUserHandler {
+func NewCreateUserHandler(createUserUC usecases.CreateUserUseCase, validator *validator.Validate) *createUserHandler {
 	return &createUserHandler{
 		createUserUC: createUserUC,
+		validator:    validator,
 	}
 }
 
@@ -41,6 +44,12 @@ func (h *createUserHandler) Handle(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			// TODO: Improve this message to be less generic
 			"message": "invalid request body",
+		})
+	}
+
+	if err := h.validator.Struct(createUserRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
 		})
 	}
 

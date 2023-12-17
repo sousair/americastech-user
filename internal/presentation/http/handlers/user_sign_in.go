@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/core/usecases"
@@ -11,7 +12,7 @@ import (
 
 type (
 	UserSignInRequest struct {
-		Email    string `json:"email"`
+		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password"`
 	}
 
@@ -22,12 +23,14 @@ type (
 
 	userSignInHandler struct {
 		userSignInUC usecases.UserSignInUseCase
+		validator    *validator.Validate
 	}
 )
 
-func NewUserSignInHandler(userSignInUC usecases.UserSignInUseCase) *userSignInHandler {
+func NewUserSignInHandler(userSignInUC usecases.UserSignInUseCase, validator *validator.Validate) *userSignInHandler {
 	return &userSignInHandler{
 		userSignInUC: userSignInUC,
+		validator:    validator,
 	}
 }
 
@@ -38,6 +41,12 @@ func (h *userSignInHandler) Handle(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			// TODO: Improve this message to be less generic
 			"message": "invalid request body",
+		})
+	}
+
+	if err := h.validator.Struct(userSignInRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
 		})
 	}
 

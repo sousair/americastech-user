@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/core/usecases"
@@ -11,17 +12,19 @@ import (
 
 type (
 	DeleteUserRequest struct {
-		ID string `param:"id"`
+		ID string `param:"id" validate:"required,uuid4"`
 	}
 
 	deleteUserHandler struct {
 		deleteUserUC usecases.DeleteUserUseCase
+		validator    *validator.Validate
 	}
 )
 
-func NewDeleteUserHandler(deleteUserUC usecases.DeleteUserUseCase) *deleteUserHandler {
+func NewDeleteUserHandler(deleteUserUC usecases.DeleteUserUseCase, validator *validator.Validate) *deleteUserHandler {
 	return &deleteUserHandler{
 		deleteUserUC: deleteUserUC,
+		validator:    validator,
 	}
 }
 
@@ -31,6 +34,12 @@ func (h *deleteUserHandler) Handle(c echo.Context) error {
 	if err := c.Bind(&deleteUserRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "invalid request body",
+		})
+	}
+
+	if err := h.validator.Struct(deleteUserRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
 		})
 	}
 

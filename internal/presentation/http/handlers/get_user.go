@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	custom_errors "github.com/sousair/americastech-user/internal/application/errors"
 	"github.com/sousair/americastech-user/internal/core/entities"
@@ -12,7 +13,7 @@ import (
 
 type (
 	GetUserRequest struct {
-		ID string `param:"id"`
+		ID string `param:"id" validate:"required,uuid4"`
 	}
 
 	GetUserResponse struct {
@@ -21,12 +22,14 @@ type (
 
 	getUserHandler struct {
 		getUserUC usecases.GetUserUseCase
+		validator *validator.Validate
 	}
 )
 
-func NewGetUserHandler(getUserUC usecases.GetUserUseCase) *getUserHandler {
+func NewGetUserHandler(getUserUC usecases.GetUserUseCase, validator *validator.Validate) *getUserHandler {
 	return &getUserHandler{
 		getUserUC: getUserUC,
+		validator: validator,
 	}
 }
 
@@ -36,6 +39,12 @@ func (h *getUserHandler) Handle(c echo.Context) error {
 	if err := c.Bind(&getUserRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "invalid request body",
+		})
+	}
+
+	if err := h.validator.Struct(getUserRequest); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
 		})
 	}
 

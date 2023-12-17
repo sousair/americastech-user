@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	app_usecases "github.com/sousair/americastech-user/internal/application/usecases"
@@ -51,6 +52,8 @@ func main() {
 		panic(err)
 	}
 
+	validator := validator.New()
+
 	cipherProvider := bcrypt_cipher.NewCipherProvider(userPassCost)
 	jwtProvider := jwt_provider.NewJwtProvider(userTokenSecret)
 
@@ -61,12 +64,12 @@ func main() {
 	updateUserUC := app_usecases.NewUpdateUserUseCase(userRepo)
 	deleteUserUC := app_usecases.NewDeleteUserUseCase(userRepo)
 
-	createUserHandler := http_handlers.NewCreateUserHandler(createUserUC).Handle
-	userSignInHandler := http_handlers.NewUserSignInHandler(userSignInUC).Handle
+	createUserHandler := http_handlers.NewCreateUserHandler(createUserUC, validator).Handle
+	userSignInHandler := http_handlers.NewUserSignInHandler(userSignInUC, validator).Handle
 	getUsersHandler := http_handlers.NewGetUsersHandler(getUsersUC).Handle
-	getUserHandler := http_handlers.NewGetUserHandler(getUserUC).Handle
-	updateUserHandler := http_handlers.NewUpdateUserHandler(updateUserUC).Handle
-	deleteUserHandler := http_handlers.NewDeleteUserHandler(deleteUserUC).Handle
+	getUserHandler := http_handlers.NewGetUserHandler(getUserUC, validator).Handle
+	updateUserHandler := http_handlers.NewUpdateUserHandler(updateUserUC, validator).Handle
+	deleteUserHandler := http_handlers.NewDeleteUserHandler(deleteUserUC, validator).Handle
 
 	e := echo.New()
 	e.POST("/users", createUserHandler)
