@@ -18,6 +18,8 @@ type (
 		Name        string `json:"username"`
 		Email       string `json:"email"`
 		PhoneNumber string `json:"phone_number"`
+		CreatedAt   string `json:"created_at"`
+		UpdatedAt   string `json:"updated_at"`
 	}
 )
 
@@ -27,5 +29,7 @@ func (u User) Sanitize() *SanitizedUser {
 		Name:        u.Name,
 		Email:       u.Email,
 		PhoneNumber: u.PhoneNumber,
+		CreatedAt:   u.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:   u.UpdatedAt.Format(time.RFC3339),
 	}
 }
