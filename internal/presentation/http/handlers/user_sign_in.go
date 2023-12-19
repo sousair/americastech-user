@@ -39,7 +39,6 @@ func (h *userSignInHandler) Handle(c echo.Context) error {
 
 	if err := c.Bind(&userSignInRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			// TODO: Improve this message to be less generic
 			"message": "invalid request body",
 		})
 	}

@@ -42,7 +42,6 @@ func (h *createUserHandler) Handle(c echo.Context) error {
 
 	if err := c.Bind(&createUserRequest); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			// TODO: Improve this message to be less generic
 			"message": "invalid request body",
 		})
 	}
