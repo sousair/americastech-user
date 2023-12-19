@@ -10,11 +10,11 @@ import (
 type (
 	User struct {
 		gorm.Model
-		ID          string `gorm:"primaryKey"`
-		Name        string
-		Email       string `gorm:"uniqueIndex"`
-		Password    string
-		PhoneNumber string
+		ID          string    `gorm:"type:uuid;primaryKey"`
+		Name        string    `gorm:"unique;not null"`
+		Email       string    `gorm:"not null;uniqueIndex"`
+		Password    string    `gorm:"not null"`
+		PhoneNumber string    `gorm:"not null;unique"`
 		CreatedAt   time.Time `gorm:"autoCreateTime"`
 		UpdatedAt   time.Time `gorm:"autoUpdateTime"`
 	}
